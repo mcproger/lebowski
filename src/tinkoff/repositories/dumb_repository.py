@@ -3,10 +3,10 @@ from decimal import Decimal
 from tinkoff.repositories.base import BaseRepository
 
 REQURIED_BUDGET = {  # example
-    'Переводы': Decimal(3000000),
-    'Фастфуд': Decimal(1000),
-    'Супермаркеты': Decimal(2000),
-    'Рестораны': Decimal(7000),
+    'Переводы': Decimal(300),
+    'Фастфуд': Decimal(100),
+    'Супермаркеты': Decimal(200),
+    'Рестораны': Decimal(700),
     'Транспорт': Decimal(400),
     'Другое': Decimal(400),
     'Кино': Decimal(200),

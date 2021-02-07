@@ -1,3 +1,4 @@
+from base_controller import BaseController
 from tinkoff.constants import OPERATIONS_PIECHART_URL
 from tinkoff.controllers.auth import TinkoffAuthController
 from tinkoff.converters import TinkoffDataConverter
@@ -9,13 +10,13 @@ from tinkoff.http_client import TinkoffHttpClient
 from tinkoff.repositories.dumb_repository import DumbRepository
 
 
-class TinkoffStatisticController:
+class TinkoffStatisticController(BaseController):
     def __init__(self) -> None:
         self.http = TinkoffHttpClient()
         self.auth = TinkoffAuthController(self.http)
         self.data_repository = DumbRepository()
 
-    def run(self) -> None:
+    def run(self) -> str:
         try:
             session_id = self.auth.run()
         except ImproperlySignedUpException:
@@ -25,7 +26,7 @@ class TinkoffStatisticController:
         current_spending = TinkoffDataConverter(raw_current_spending)()
         required_budget = self.data_repository.get_required_budget()
 
-        self.handle_current_spending(current_spending, required_budget)
+        return self.get_info_about_current_spenndings_state(current_spending, required_budget)
 
     def get_operations_piechar(self, session_id: str) -> dict:
         return self.http.make_request(
@@ -33,18 +34,18 @@ class TinkoffStatisticController:
             url=OPERATIONS_PIECHART_URL.format(signed_up_session_id=session_id),
         )
 
-    def handle_current_spending(self, current_spending: dict, required_budget) -> None:
+    def get_info_about_current_spenndings_state(self, current_spending: dict, required_budget) -> str:
         try:
             self.check_budget_for_half_spending(current_spending, required_budget)
         except TooManyHalfMoneySpendException as exc_info:
-            print(exc_info)  # noqa: T001
-            return None
+            return str(exc_info)
 
         try:
             self.check_budget_for_quarterly_spending(current_spending, required_budget)
         except TooManyQuartelryMoneySpendException as exc_info:
-            print(exc_info)  # noqa: T001
-            return None
+            return str(exc_info)
+
+        return 'At the moment your running expenses are ok '
 
     def check_budget_for_quarterly_spending(self, current_budget: dict, required_budget: dict) -> None:
         quarterly_spending_index = 4
