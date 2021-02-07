@@ -1,3 +1,4 @@
+from base_controller import BaseController
 from tinkoff.constants import (
     SESSION_URL, SIGN_UP_URL, CANDIDATE_ACCESS_LEVEL_MARKER, CLIENT_ACCESS_LEVEL_MARKER,
     SIGN_UP_FORM_PAYLOAD, LEVEL_UP_URL,
@@ -5,7 +6,7 @@ from tinkoff.constants import (
 from tinkoff.controllers.exceptions import ImproperlySignedUpException
 
 
-class TinkoffAuthController:
+class TinkoffAuthController(BaseController):
     """
     Tinkoff auth controller.
 
