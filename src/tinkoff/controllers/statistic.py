@@ -43,17 +43,22 @@ class TinkoffStatisticController(BaseController):
             raise InvalidOperationsPiecharRequest
 
     def get_info_about_current_spenndings_state(self, current_spending: dict, required_budget) -> str:
+        half_spends_message = quarter_spends_message = ''
+
         try:
             self.check_budget_for_half_spending(current_spending, required_budget)
         except MoreThanHalfOfTheBudgetSpentException as exc_info:
-            return str(exc_info)
+            half_spends_message = str(exc_info)
 
         try:
             self.check_budget_for_quarterly_spending(current_spending, required_budget)
         except MoreThanQuarterOfTheBudgetSpentException as exc_info:
-            return str(exc_info)
+            quarter_spends_message = str(exc_info)
 
-        return 'At the moment your running expenses are ok '
+        if half_spends_message or quarter_spends_message:
+            return f'{half_spends_message}\n{quarter_spends_message}'
+
+        return 'At the moment your running expenses are ok'
 
     def check_budget_for_quarterly_spending(self, current_budget: dict, required_budget: dict) -> None:
         quarterly_spending_index = 4
@@ -83,4 +88,4 @@ class TinkoffStatisticController(BaseController):
                 too_many_spends.append(f'Spends for {spending_type} – {spending_value}. Allowed is {allowed_budget}\n')
 
         if too_many_spends:
-            raise TooManyMoneySpendException('\n'.join(too_many_spends))
+            raise TooManyMoneySpendException(''.join(too_many_spends))
