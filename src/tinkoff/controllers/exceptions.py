@@ -6,11 +6,11 @@ class TooManyMoneySpendException(Exception):
     pass
 
 
-class TooManyQuartelryMoneySpendException(Exception):
+class MoreThanQuarterOfTheBudgetSpentException(Exception):
     pass
 
 
-class TooManyHalfMoneySpendException(Exception):
+class MoreThanHalfOfTheBudgetSpentException(Exception):
     pass
 
 

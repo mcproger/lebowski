@@ -2,7 +2,7 @@ from base_controller import BaseController
 from tinkoff.controllers.auth import TinkoffAuthController
 from tinkoff.converters import TinkoffDataConverter
 from tinkoff.controllers.exceptions import (
-    ImproperlySignedUpException, TooManyHalfMoneySpendException, TooManyQuartelryMoneySpendException,
+    ImproperlySignedUpException, MoreThanHalfOfTheBudgetSpentException, MoreThanQuarterOfTheBudgetSpentException,
     TooManyMoneySpendException, InvalidOperationsPiecharRequest,
 )
 from tinkoff.helpers import operations_piechar_url
@@ -45,12 +45,12 @@ class TinkoffStatisticController(BaseController):
     def get_info_about_current_spenndings_state(self, current_spending: dict, required_budget) -> str:
         try:
             self.check_budget_for_half_spending(current_spending, required_budget)
-        except TooManyHalfMoneySpendException as exc_info:
+        except MoreThanHalfOfTheBudgetSpentException as exc_info:
             return str(exc_info)
 
         try:
             self.check_budget_for_quarterly_spending(current_spending, required_budget)
-        except TooManyQuartelryMoneySpendException as exc_info:
+        except MoreThanQuarterOfTheBudgetSpentException as exc_info:
             return str(exc_info)
 
         return 'At the moment your running expenses are ok '
@@ -61,7 +61,7 @@ class TinkoffStatisticController(BaseController):
         try:
             self._check_budget(current_budget, required_budget, quarterly_spending_index)
         except TooManyMoneySpendException as exc_info:
-            raise TooManyQuartelryMoneySpendException(f'Too many quarter of budget spending: \n{exc_info}')
+            raise MoreThanQuarterOfTheBudgetSpentException(f'More than a quarter of the budget spent: \n{exc_info}')
 
     def check_budget_for_half_spending(self, current_budget: dict, required_budget: dict) -> None:
         half_spending_index = 2
@@ -69,7 +69,7 @@ class TinkoffStatisticController(BaseController):
         try:
             self._check_budget(current_budget, required_budget, half_spending_index)
         except TooManyMoneySpendException as exc_info:
-            raise TooManyHalfMoneySpendException(f'Too many half of budget spending: \n{exc_info}')
+            raise MoreThanHalfOfTheBudgetSpentException(f'More than a half of the budget spent: \n{exc_info}')
 
     def _check_budget(
         self, current_spending: dict, required_budget: dict, spending_index: int,
@@ -77,7 +77,7 @@ class TinkoffStatisticController(BaseController):
         too_many_spends = []
 
         for spending_type, spending_value in current_spending.items():
-            allowed_budget = required_budget.get(spending_type)
+            allowed_budget = required_budget.get(spending_type, 0)
 
             if spending_value >= allowed_budget / spending_index:
                 too_many_spends.append(f'Spends for {spending_type} – {spending_value}. Allowed is {allowed_budget}\n')

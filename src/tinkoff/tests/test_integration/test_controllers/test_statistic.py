@@ -2,7 +2,9 @@ import pytest
 
 from decimal import Decimal
 
-from tinkoff.controllers.exceptions import TooManyHalfMoneySpendException, TooManyQuartelryMoneySpendException
+from tinkoff.controllers.exceptions import (
+    MoreThanHalfOfTheBudgetSpentException, MoreThanQuarterOfTheBudgetSpentException,
+)
 from tinkoff.controllers.statistic import TinkoffStatisticController
 from tinkoff.converters import TinkoffDataConverter
 
@@ -91,11 +93,11 @@ def required_budget():
 def test_alert_about_quarter_of_required_budget(
     controller, current_month_operations_for_quarterly_check, required_budget,
 ):
-    with pytest.raises(TooManyQuartelryMoneySpendException) as exc_info:
+    with pytest.raises(MoreThanQuarterOfTheBudgetSpentException) as exc_info:
         controller.check_budget_for_quarterly_spending(current_month_operations_for_quarterly_check, required_budget)
 
     assert str(exc_info.value) == (
-        'Too many quarter of budget spending: \n'
+        'More than a quarter of the budget spent: \n'
         'Spends for Переводы – 1500.0. Allowed is 1000\n'
     )
 
@@ -103,10 +105,10 @@ def test_alert_about_quarter_of_required_budget(
 def test_alert_about_half_or_required_budget(
     controller, current_month_operations_for_half_check, required_budget,
 ):
-    with pytest.raises(TooManyHalfMoneySpendException) as exc_info:
+    with pytest.raises(MoreThanHalfOfTheBudgetSpentException) as exc_info:
         controller.check_budget_for_half_spending(current_month_operations_for_half_check, required_budget)
 
     assert str(exc_info.value) == (
-        'Too many half of budget spending: \n'
+        'More than a half of the budget spent: \n'
         'Spends for Транспорт – 10000.0. Allowed is 800\n'
     )
