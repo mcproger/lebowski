@@ -1,5 +1,5 @@
 test:
-	cd src/ && python3 -m pytest
+	cd src/ && python3 -m pytest -vv
 
 lint:
 	flake8 src/

@@ -69,8 +69,10 @@ class TinkoffStatisticController(BaseController):
         too_many_spends = []
 
         for spending_type, spending_value in current_spending.items():
-            if spending_value >= required_budget[spending_type] / spending_index:
-                too_many_spends.append(f'Spends for {spending_type} – {spending_value}')
+            allowed_budget = required_budget[spending_type]
+
+            if spending_value >= allowed_budget / spending_index:
+                too_many_spends.append(f'Spends for {spending_type} – {spending_value}. Allowed is {allowed_budget}\n')
 
         if too_many_spends:
             raise TooManyMoneySpendException('\n'.join(too_many_spends))
