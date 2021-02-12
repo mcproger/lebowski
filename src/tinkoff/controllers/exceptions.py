@@ -12,3 +12,7 @@ class TooManyQuartelryMoneySpendException(Exception):
 
 class TooManyHalfMoneySpendException(Exception):
     pass
+
+
+class InvalidOperationsPiecharRequest(Exception):
+    pass

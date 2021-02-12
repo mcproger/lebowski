@@ -1,38 +1,46 @@
 from base_controller import BaseController
-from tinkoff.constants import OPERATIONS_PIECHART_URL
 from tinkoff.controllers.auth import TinkoffAuthController
 from tinkoff.converters import TinkoffDataConverter
 from tinkoff.controllers.exceptions import (
     ImproperlySignedUpException, TooManyHalfMoneySpendException, TooManyQuartelryMoneySpendException,
-    TooManyMoneySpendException,
+    TooManyMoneySpendException, InvalidOperationsPiecharRequest,
 )
+from tinkoff.helpers import operations_piechar_url
 from tinkoff.http_client import TinkoffHttpClient
 from tinkoff.repositories.dumb_repository import DumbRepository
 
 
 class TinkoffStatisticController(BaseController):
-    def __init__(self) -> None:
-        self.http = TinkoffHttpClient()
-        self.auth = TinkoffAuthController(self.http)
-        self.data_repository = DumbRepository()
+    def __init__(self, http=None, auth=None, data_repository=None) -> None:
+        self.http = http or TinkoffHttpClient()
+        self.auth = auth or TinkoffAuthController(self.http)
+        self.data_repository = data_repository or DumbRepository()
 
     def run(self) -> str:
         try:
             session_id = self.auth.run()
         except ImproperlySignedUpException:
-            return None  # NOTE add notification about failure
+            return None  # NOTE add loggin about failure
 
-        raw_current_spending = self.get_operations_piechar(session_id)['payload']['aggregated']
+        try:
+            raw_current_spending = self.get_operations_piechar(session_id)
+        except InvalidOperationsPiecharRequest:
+            return None  # NOTE add logging here  about failure
+
         current_spending = TinkoffDataConverter(raw_current_spending)()
         required_budget = self.data_repository.get_required_budget()
 
         return self.get_info_about_current_spenndings_state(current_spending, required_budget)
 
     def get_operations_piechar(self, session_id: str) -> dict:
-        return self.http.make_request(
-            'GET',
-            url=OPERATIONS_PIECHART_URL.format(signed_up_session_id=session_id),
-        )
+        try:
+            response = self.http.make_request(
+                'GET',
+                url=operations_piechar_url(session=session_id),
+            )
+            return response['payload']['aggregated']
+        except KeyError:
+            raise InvalidOperationsPiecharRequest
 
     def get_info_about_current_spenndings_state(self, current_spending: dict, required_budget) -> str:
         try:
@@ -69,7 +77,7 @@ class TinkoffStatisticController(BaseController):
         too_many_spends = []
 
         for spending_type, spending_value in current_spending.items():
-            allowed_budget = required_budget[spending_type]
+            allowed_budget = required_budget.get(spending_type)
 
             if spending_value >= allowed_budget / spending_index:
                 too_many_spends.append(f'Spends for {spending_type} – {spending_value}. Allowed is {allowed_budget}\n')
