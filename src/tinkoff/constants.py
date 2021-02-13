@@ -11,8 +11,8 @@ LEVEL_UP_URL = (
 )
 OPERATIONS_PIECHART_URL = (
     # NOTE convert end to current month end
-    'https://www.tinkoff.ru/api/common/v1/operations_piechart?end=1612137599000&'
-    'groupBy=spendingCategory&notInner=true&start=1609459200000&type=Debit'
+    'https://www.tinkoff.ru/api/common/v1/operations_piechart?end={to_timestamp}&'
+    'groupBy=spendingCategory&notInner=true&start={from_timestamp}&type=Debit'
     '&sessionid={signed_up_session_id}&wuid=af3b1c996a3e2678fb05a25fab603e17'
 )
 
