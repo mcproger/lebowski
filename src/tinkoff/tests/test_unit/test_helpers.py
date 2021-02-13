@@ -1,10 +1,10 @@
 from datetime import datetime
 import pytest
 
-from tinkoff.helpers import operations_piechar_url
+from tinkoff.helpers import make_aware, operations_piechar_url
 
 
-@pytest.mark.freeze_time(datetime(2020, 1, 28, 3, 0, 0))
+@pytest.mark.freeze_time(make_aware(datetime(2020, 1, 28, 3, 0, 0)))
 @pytest.mark.parametrize(
     ('from_datetime', 'to_datetime', 'expected_result'),
     [
