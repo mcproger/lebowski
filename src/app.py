@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from notifications import TelegramNotifier
@@ -10,7 +12,8 @@ def main() -> None:
 
     message = controller.run()
 
-    notifier.notify(message, os.getenv('TELEGRAM_CHAT_ID'))
+    if message:
+        notifier.notify(message, os.getenv('TELEGRAM_CHAT_ID'))
 
 
 if __name__ == '__main__':

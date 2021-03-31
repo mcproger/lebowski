@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import json
 
 import httpx
 import pytest
 
-from tinkoff.http_client import TinkoffHttpClient, USER_AGENT, TinkoffAPIRequestError
+from tinkoff.http_client import USER_AGENT, TinkoffAPIRequestError, TinkoffHttpClient
 
 
 @pytest.fixture()
@@ -54,10 +56,7 @@ def test_properly_make_request_call(client, mocked_httpx, headers, expected_valu
     client.make_request('GET', url='https://test.com', headers=headers)
 
     mocked_httpx.assert_called_once_with(
-        'get',
-        'https://test.com',
-        headers=expected_value,
-        data=None,
+        'get', 'https://test.com', headers=expected_value, data=None
     )
 
 

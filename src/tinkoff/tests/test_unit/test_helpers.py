@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
+
 import pytest
 
 from tinkoff.helpers import operations_piechar_url
@@ -9,7 +12,8 @@ from tinkoff.helpers import operations_piechar_url
     ('from_datetime', 'to_datetime', 'expected_result'),
     [
         (
-            None, None,
+            None,
+            None,
             'https://www.tinkoff.ru/api/common/v1/operations_piechart?end=1580169600000&'
             'groupBy=spendingCategory&notInner=true&start=1577836800000&type=Debit'
             '&sessionid=test-session&wuid=af3b1c996a3e2678fb05a25fab603e17',

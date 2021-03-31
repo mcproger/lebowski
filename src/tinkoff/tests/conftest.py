@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from tinkoff.controllers.statistic import TinkoffStatisticController
@@ -9,6 +11,7 @@ def tinkoff_http_client_factory(mocker):
         http_client = mocker.MagicMock()
         http_client.make_request.return_value = tinkoff_expected_response
         return http_client
+
     return _with_response
 
 
@@ -19,6 +22,7 @@ def statistic_controller_factory(tinkoff_http_client_factory):
         controller = TinkoffStatisticController(http=http)
         controller.http = http
         return controller
+
     return _with_tinkoff_response
 
 

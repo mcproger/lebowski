@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import typing
 
@@ -14,9 +16,11 @@ class HTTPRequestError(Exception):
 
 
 class BaseHttpClient(typing.Protocol):
-    headers = {}
+    headers: typing.Dict[str, str] = {}
 
-    def make_request(self, method: str, url: str, headers: dict = None, payload: dict = None) -> typing.Optional[dict]:
+    def make_request(
+        self, method: str, url: str, headers: dict = None, payload: dict = None
+    ) -> typing.Optional[dict]:
         if headers:
             self.headers.update(headers)
 

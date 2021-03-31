@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 SESSION_URL = 'https://www.tinkoff.ru/api/common/v1/session?origin=web%2Cib5%2Cplatform'

@@ -1,25 +1,34 @@
+from __future__ import annotations
+
+import typing
+
 from base_controller import BaseController
-from tinkoff.controllers.auth import TinkoffAuthController
-from tinkoff.helpers import convert_raw_tinkoff_data
-from tinkoff.controllers.exceptions import (
-    ImproperlySignedUpException, MoreThanHalfOfTheBudgetSpentException, MoreThanQuarterOfTheBudgetSpentException,
-    TooManyMoneySpendException, InvalidOperationsPiecharRequest,
-)
-from tinkoff.helpers import operations_piechar_url
-from tinkoff.http_client import TinkoffHttpClient
-from tinkoff.repositories import DumbRepository, BaseRepository
 from http_client import BaseHttpClient
+from tinkoff.controllers.auth import TinkoffAuthController
+from tinkoff.controllers.exceptions import (
+    ImproperlySignedUpException,
+    InvalidOperationsPiecharRequest,
+    MoreThanHalfOfTheBudgetSpentException,
+    MoreThanQuarterOfTheBudgetSpentException,
+    TooManyMoneySpendException,
+)
+from tinkoff.helpers import convert_raw_tinkoff_data, operations_piechar_url
+from tinkoff.http_client import TinkoffHttpClient
+from tinkoff.repositories import BaseRepository, DumbRepository
 
 
 class TinkoffStatisticController(BaseController):
     def __init__(
-        self, http: BaseHttpClient = None, auth: BaseController = None, data_repository: BaseRepository = None,
+        self,
+        http: BaseHttpClient = None,
+        auth: BaseController = None,
+        data_repository: BaseRepository = None,
     ) -> None:
         self.http = http or TinkoffHttpClient()
         self.auth = auth or TinkoffAuthController(self.http)
         self.data_repository = data_repository or DumbRepository()
 
-    def run(self) -> str:
+    def run(self) -> typing.Optional[str]:
         try:
             session_id = self.auth.run()
         except ImproperlySignedUpException:
@@ -37,15 +46,14 @@ class TinkoffStatisticController(BaseController):
 
     def get_operations_piechar(self, session_id: str) -> dict:
         try:
-            response = self.http.make_request(
-                'GET',
-                url=operations_piechar_url(session=session_id),
-            )
+            response = self.http.make_request('GET', url=operations_piechar_url(session=session_id))
             return response['payload']['aggregated']
         except KeyError:
             raise InvalidOperationsPiecharRequest
 
-    def get_info_about_current_spenndings_state(self, current_spending: dict, required_budget) -> str:
+    def get_info_about_current_spenndings_state(
+        self, current_spending: dict, required_budget
+    ) -> str:
         half_spends_message = quarter_spends_message = ''
 
         try:
@@ -63,13 +71,17 @@ class TinkoffStatisticController(BaseController):
 
         return 'At the moment your running expenses are ok'
 
-    def check_budget_for_quarterly_spending(self, current_budget: dict, required_budget: dict) -> None:
+    def check_budget_for_quarterly_spending(
+        self, current_budget: dict, required_budget: dict
+    ) -> None:
         quarterly_spending_index = 4
 
         try:
             self._check_budget(current_budget, required_budget, quarterly_spending_index)
         except TooManyMoneySpendException as exc_info:
-            raise MoreThanQuarterOfTheBudgetSpentException(f'More than a quarter of the budget spent: \n{exc_info}')
+            raise MoreThanQuarterOfTheBudgetSpentException(
+                f'More than a quarter of the budget spent: \n{exc_info}'
+            )
 
     def check_budget_for_half_spending(self, current_budget: dict, required_budget: dict) -> None:
         half_spending_index = 2
@@ -77,10 +89,12 @@ class TinkoffStatisticController(BaseController):
         try:
             self._check_budget(current_budget, required_budget, half_spending_index)
         except TooManyMoneySpendException as exc_info:
-            raise MoreThanHalfOfTheBudgetSpentException(f'More than a half of the budget spent: \n{exc_info}')
+            raise MoreThanHalfOfTheBudgetSpentException(
+                f'More than a half of the budget spent: \n{exc_info}'
+            )
 
     def _check_budget(
-        self, current_spending: dict, required_budget: dict, spending_index: int,
+        self, current_spending: dict, required_budget: dict, spending_index: int
     ) -> None:
         too_many_spends = []
 
@@ -88,7 +102,9 @@ class TinkoffStatisticController(BaseController):
             allowed_budget = required_budget.get(spending_type, 0)
 
             if spending_value >= allowed_budget / spending_index:
-                too_many_spends.append(f'Spends for {spending_type} – {spending_value}. Allowed is {allowed_budget}\n')
+                too_many_spends.append(
+                    f'Spends for {spending_type} – {spending_value}. Allowed is {allowed_budget}\n'
+                )
 
         if too_many_spends:
             raise TooManyMoneySpendException(''.join(too_many_spends))
