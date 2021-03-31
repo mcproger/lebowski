@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing
 
 from http_client import BaseHttpClient, HTTPRequestError
@@ -26,7 +28,9 @@ class TinkoffHttpClient(BaseHttpClient):
             'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8,ru;q=0.7',
         }
 
-    def make_request(self, method: str, url: str, headers: dict = None, payload: dict = None) -> typing.Optional[dict]:
+    def make_request(
+        self, method: str, url: str, headers: dict = None, payload: dict = None
+    ) -> typing.Optional[dict]:
         try:
             return super().make_request(method, url, headers, payload)
         except HTTPRequestError:

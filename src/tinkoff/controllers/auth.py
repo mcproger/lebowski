@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 from base_controller import BaseController
+from http_client import BaseHttpClient
 from tinkoff.constants import (
-    SESSION_URL, SIGN_UP_URL, CANDIDATE_ACCESS_LEVEL_MARKER, CLIENT_ACCESS_LEVEL_MARKER,
-    SIGN_UP_FORM_PAYLOAD, LEVEL_UP_URL,
+    CANDIDATE_ACCESS_LEVEL_MARKER,
+    CLIENT_ACCESS_LEVEL_MARKER,
+    LEVEL_UP_URL,
+    SESSION_URL,
+    SIGN_UP_FORM_PAYLOAD,
+    SIGN_UP_URL,
 )
 from tinkoff.controllers.exceptions import ImproperlySignedUpException
 from tinkoff.http_client import TinkoffHttpClient
-from http_client import BaseHttpClient
 
 
 class TinkoffAuthController(BaseController):
@@ -19,6 +25,7 @@ class TinkoffAuthController(BaseController):
 
     After these steps we can make requests for api.
     """
+
     def __init__(self, http_client: BaseHttpClient = None) -> None:
         self.http = http_client or TinkoffHttpClient()
 
@@ -30,10 +37,7 @@ class TinkoffAuthController(BaseController):
 
     def get_initial_session_id(self) -> str:
         """Get inital session id for api requests"""
-        data = self.http.make_request(
-            'GET',
-            url=SESSION_URL,
-        )
+        data = self.http.make_request('GET', url=SESSION_URL)
 
         return data['payload']
 
@@ -44,9 +48,7 @@ class TinkoffAuthController(BaseController):
         sign_up endpoint returns *new* signed up session id
         """
         data = self.http.make_request(
-            'POST',
-            url=SIGN_UP_URL.format(session_id=session_id),
-            payload=SIGN_UP_FORM_PAYLOAD,
+            'POST', url=SIGN_UP_URL.format(session_id=session_id), payload=SIGN_UP_FORM_PAYLOAD
         )
 
         self._check_access_level(data, CANDIDATE_ACCESS_LEVEL_MARKER)
@@ -56,8 +58,7 @@ class TinkoffAuthController(BaseController):
     def make_level_up(self, signed_up_session_id: str) -> None:
         """Boost access level to CLIENT (can make financial api requests)"""
         data = self.http.make_request(
-            'GET',
-            url=LEVEL_UP_URL.format(signed_up_session_id=signed_up_session_id),
+            'GET', url=LEVEL_UP_URL.format(signed_up_session_id=signed_up_session_id)
         )
 
         self._check_access_level(data, CLIENT_ACCESS_LEVEL_MARKER)

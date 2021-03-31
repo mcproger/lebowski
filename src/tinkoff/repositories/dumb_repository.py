@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import typing
 from decimal import Decimal
 
 from tinkoff.repositories.base import BaseRepository
@@ -18,5 +21,5 @@ REQURIED_BUDGET = {  # example
 
 
 class DumbRepository(BaseRepository):
-    def get_required_budget(self):
+    def get_required_budget(self) -> typing.Dict[str, Decimal]:
         return REQURIED_BUDGET

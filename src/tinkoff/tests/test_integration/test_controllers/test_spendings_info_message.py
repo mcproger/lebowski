@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from decimal import Decimal
 
 import pytest
@@ -7,82 +9,75 @@ from tinkoff.helpers import convert_raw_tinkoff_data
 
 @pytest.fixture()
 def required_budget():
-    return {
-        'Переводы': Decimal(5000),
-        'Транспорт': Decimal(6000),
-    }
+    return {'Переводы': Decimal(5000), 'Транспорт': Decimal(6000)}
 
 
 @pytest.fixture()
 def current_spendings():
-    return convert_raw_tinkoff_data([
-        {
-            'amountPercent': 39.61999470957303,
-            'amount': {
-                'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
-                'value': 2600.0,
+    return convert_raw_tinkoff_data(
+        [
+            {
+                'amountPercent': 39.61999470957303,
+                'amount': {
+                    'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
+                    'value': 2600.0,
+                },
+                'spendingCategory': {'id': '57', 'name': 'Переводы', 'icon': '39', 'parentId': '8'},
+                'groupBy': 'Переводы',
             },
-            'spendingCategory': {
-                'id': '57',
-                'name': 'Переводы',
-                'icon': '39',
-                'parentId': '8',
+            {
+                'amountPercent': 11.644298151316375,
+                'amount': {
+                    'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
+                    'value': 1600.0,
+                },
+                'spendingCategory': {
+                    'id': '55',
+                    'name': 'Транспорт',
+                    'icon': '36',
+                    'parentId': '4',
+                },
+                'groupBy': 'Транспорт',
             },
-            'groupBy': 'Переводы',
-        },
-        {
-            'amountPercent': 11.644298151316375,
-            'amount': {
-                'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
-                'value': 1600.0,
-            },
-            'spendingCategory': {
-                'id': '55',
-                'name': 'Транспорт',
-                'icon': '36',
-                'parentId': '4',
-            },
-            'groupBy': 'Транспорт',
-        },
-    ])
+        ]
+    )
 
 
 @pytest.fixture()
 def current_spendings_for_only_one_index():
-    return convert_raw_tinkoff_data([
-        {
-            'amountPercent': 39.61999470957303,
-            'amount': {
-                'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
-                'value': 123.0,
+    return convert_raw_tinkoff_data(
+        [
+            {
+                'amountPercent': 39.61999470957303,
+                'amount': {
+                    'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
+                    'value': 123.0,
+                },
+                'spendingCategory': {'id': '57', 'name': 'Переводы', 'icon': '39', 'parentId': '8'},
+                'groupBy': 'Переводы',
             },
-            'spendingCategory': {
-                'id': '57',
-                'name': 'Переводы',
-                'icon': '39',
-                'parentId': '8',
+            {
+                'amountPercent': 11.644298151316375,
+                'amount': {
+                    'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
+                    'value': 1600.0,
+                },
+                'spendingCategory': {
+                    'id': '55',
+                    'name': 'Транспорт',
+                    'icon': '36',
+                    'parentId': '4',
+                },
+                'groupBy': 'Транспорт',
             },
-            'groupBy': 'Переводы',
-        },
-        {
-            'amountPercent': 11.644298151316375,
-            'amount': {
-                'currency': {'code': 643, 'name': 'RUB', 'strCode': '643'},
-                'value': 1600.0,
-            },
-            'spendingCategory': {
-                'id': '55',
-                'name': 'Транспорт',
-                'icon': '36',
-                'parentId': '4',
-            },
-            'groupBy': 'Транспорт',
-        },
-    ])
+        ]
+    )
 
 
 def test_spendins_info_message(current_spendings, required_budget, statistic_controller):
-    result = statistic_controller.get_info_about_current_spenndings_state(current_spendings, required_budget)
+    result = statistic_controller.get_info_about_current_spenndings_state(
+        current_spendings, required_budget
+    )
 
     assert result == (
         'More than a half of the budget spent: \n'
@@ -95,13 +90,16 @@ def test_spendins_info_message(current_spendings, required_budget, statistic_con
 
 
 def test_spending_info_message_only_for_on_spending_index(
-    current_spendings_for_only_one_index, required_budget, statistic_controller,
+    current_spendings_for_only_one_index, required_budget, statistic_controller
 ):
     result = statistic_controller.get_info_about_current_spenndings_state(
-        current_spendings_for_only_one_index, required_budget,
+        current_spendings_for_only_one_index, required_budget
     )
 
-    assert result == '\nMore than a quarter of the budget spent: \nSpends for Транспорт – 1600.0. Allowed is 6000\n'
+    assert (
+        result
+        == '\nMore than a quarter of the budget spent: \nSpends for Транспорт – 1600.0. Allowed is 6000\n'
+    )
 
 
 def test_speindg_info_message_when_spending_is_fine(required_budget, statistic_controller):
