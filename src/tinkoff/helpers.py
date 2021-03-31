@@ -22,3 +22,13 @@ def operations_piechar_url(session: str, from_datetime: datetime = None, to_date
         signed_up_session_id=session, from_timestamp=to_milliseconds(from_timestamp),
         to_timestamp=to_milliseconds(to_timestamp),
     )
+
+
+def convert_raw_tinkoff_data(raw_data: dict) -> dict:
+    if not raw_data:
+        return {}
+
+    return {
+        element['spendingCategory']['name']: element['amount']['value']
+        for element in raw_data
+    }

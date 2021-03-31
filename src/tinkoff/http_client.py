@@ -1,6 +1,6 @@
-import json
+import typing
 
-import httpx
+from http_client import BaseHttpClient, HTTPRequestError
 
 USER_AGENT = (
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
@@ -12,7 +12,7 @@ class TinkoffAPIRequestError(Exception):
     pass
 
 
-class TinkoffHttpClient:
+class TinkoffHttpClient(BaseHttpClient):
     def __init__(self) -> None:
         self.headers = {
             'authority': 'www.tinkoff.ru',
@@ -26,12 +26,8 @@ class TinkoffHttpClient:
             'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8,ru;q=0.7',
         }
 
-    def make_request(self, method: str, url: str, headers: dict = None, payload: dict = None) -> dict:
-        if headers:
-            self.headers.update(headers)
-
+    def make_request(self, method: str, url: str, headers: dict = None, payload: dict = None) -> typing.Optional[dict]:
         try:
-            response = httpx.request(method.lower(), url, headers=self.headers, data=payload)
-            return response.json()
-        except (httpx.RequestError, json.JSONDecodeError, AttributeError):
+            return super().make_request(method, url, headers, payload)
+        except HTTPRequestError:
             raise TinkoffAPIRequestError

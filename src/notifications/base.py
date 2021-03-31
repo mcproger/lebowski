@@ -1,8 +1,6 @@
-import abc
-from typing import Any
+from typing import Any, Protocol
 
 
-class BaseNotifier(abc.ABC):
-    @abc.abstractmethod
+class BaseNotifier(Protocol):
     def notify(self, *args: Any, **kwargs: Any) -> None:
-        raise NotImplementedError
+        ...

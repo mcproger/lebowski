@@ -1,17 +1,20 @@
 from base_controller import BaseController
 from tinkoff.controllers.auth import TinkoffAuthController
-from tinkoff.converters import TinkoffDataConverter
+from tinkoff.helpers import convert_raw_tinkoff_data
 from tinkoff.controllers.exceptions import (
     ImproperlySignedUpException, MoreThanHalfOfTheBudgetSpentException, MoreThanQuarterOfTheBudgetSpentException,
     TooManyMoneySpendException, InvalidOperationsPiecharRequest,
 )
 from tinkoff.helpers import operations_piechar_url
 from tinkoff.http_client import TinkoffHttpClient
-from tinkoff.repositories.dumb_repository import DumbRepository
+from tinkoff.repositories import DumbRepository, BaseRepository
+from http_client import BaseHttpClient
 
 
 class TinkoffStatisticController(BaseController):
-    def __init__(self, http=None, auth=None, data_repository=None) -> None:
+    def __init__(
+        self, http: BaseHttpClient = None, auth: BaseController = None, data_repository: BaseRepository = None,
+    ) -> None:
         self.http = http or TinkoffHttpClient()
         self.auth = auth or TinkoffAuthController(self.http)
         self.data_repository = data_repository or DumbRepository()
@@ -27,7 +30,7 @@ class TinkoffStatisticController(BaseController):
         except InvalidOperationsPiecharRequest:
             return None  # NOTE add logging here  about failure
 
-        current_spending = TinkoffDataConverter(raw_current_spending)()
+        current_spending = convert_raw_tinkoff_data(raw_current_spending)
         required_budget = self.data_repository.get_required_budget()
 
         return self.get_info_about_current_spenndings_state(current_spending, required_budget)
