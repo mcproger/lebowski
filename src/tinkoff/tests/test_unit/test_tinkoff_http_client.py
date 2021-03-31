@@ -13,7 +13,7 @@ def client(mocker):
 
 @pytest.fixture()
 def mocked_httpx(mocker):
-    return mocker.patch('tinkoff.http_client.httpx.request')
+    return mocker.patch('http_client.httpx.request')
 
 
 @pytest.mark.parametrize(

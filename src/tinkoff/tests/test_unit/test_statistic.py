@@ -5,12 +5,12 @@ from decimal import Decimal
 from tinkoff.controllers.exceptions import (
     MoreThanHalfOfTheBudgetSpentException, MoreThanQuarterOfTheBudgetSpentException,
 )
-from tinkoff.converters import TinkoffDataConverter
+from tinkoff.helpers import convert_raw_tinkoff_data
 
 
 @pytest.fixture()
 def current_month_operations_for_quarterly_check():
-    return TinkoffDataConverter([
+    return convert_raw_tinkoff_data([  # NOTE use pydantic for this
         {
             'amountPercent': 39.61999470957303,
             'amount': {
@@ -39,12 +39,12 @@ def current_month_operations_for_quarterly_check():
             },
             'groupBy': 'Транспорт',
         },
-    ])()
+    ])
 
 
 @pytest.fixture()
 def current_month_operations_for_half_check():
-    return TinkoffDataConverter([
+    return convert_raw_tinkoff_data([
         {
             'amountPercent': 39.61999470957303,
             'amount': {
@@ -73,7 +73,7 @@ def current_month_operations_for_half_check():
             },
             'groupBy': 'Транспорт',
         },
-    ])()
+    ])
 
 
 @pytest.fixture()

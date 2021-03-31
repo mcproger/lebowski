@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from tinkoff.converters import TinkoffDataConverter
+from tinkoff.helpers import convert_raw_tinkoff_data
 
 
 @pytest.fixture()
@@ -15,7 +15,7 @@ def required_budget():
 
 @pytest.fixture()
 def current_spendings():
-    return TinkoffDataConverter([
+    return convert_raw_tinkoff_data([
         {
             'amountPercent': 39.61999470957303,
             'amount': {
@@ -44,12 +44,12 @@ def current_spendings():
             },
             'groupBy': 'Транспорт',
         },
-    ])()
+    ])
 
 
 @pytest.fixture()
 def current_spendings_for_only_one_index():
-    return TinkoffDataConverter([
+    return convert_raw_tinkoff_data([
         {
             'amountPercent': 39.61999470957303,
             'amount': {
@@ -78,7 +78,7 @@ def current_spendings_for_only_one_index():
             },
             'groupBy': 'Транспорт',
         },
-    ])()
+    ])
 
 
 def test_spendins_info_message(current_spendings, required_budget, statistic_controller):

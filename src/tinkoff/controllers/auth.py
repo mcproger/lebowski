@@ -4,6 +4,8 @@ from tinkoff.constants import (
     SIGN_UP_FORM_PAYLOAD, LEVEL_UP_URL,
 )
 from tinkoff.controllers.exceptions import ImproperlySignedUpException
+from tinkoff.http_client import TinkoffHttpClient
+from http_client import BaseHttpClient
 
 
 class TinkoffAuthController(BaseController):
@@ -17,8 +19,8 @@ class TinkoffAuthController(BaseController):
 
     After these steps we can make requests for api.
     """
-    def __init__(self, http_client) -> None:
-        self.http = http_client
+    def __init__(self, http_client: BaseHttpClient = None) -> None:
+        self.http = http_client or TinkoffHttpClient()
 
     def run(self) -> str:
         initial_session_id = self.get_initial_session_id()
